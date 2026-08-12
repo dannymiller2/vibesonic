@@ -1,0 +1,804 @@
+/* -------------------------------------------------------------
+ * VIBESYNTH - Style System
+ * ------------------------------------------------------------- */
+
+/* Design Tokens & Theme Setup */
+:root {
+    --bg-dark: #0a0a0f;
+    --bg-panel: rgba(20, 20, 30, 0.45);
+    --border-glass: rgba(255, 255, 255, 0.08);
+    --border-glass-active: rgba(255, 255, 255, 0.2);
+    
+    --text-primary: #f0f0f5;
+    --text-secondary: #9494a8;
+    --text-muted: #62627a;
+    
+    /* Neon glow colors */
+    --cyan-glow: #00f0ff;
+    --pink-glow: #ff007f;
+    --purple-glow: #bd00ff;
+    
+    --glow-shadow-cyan: 0 0 15px rgba(0, 240, 255, 0.4);
+    --glow-shadow-pink: 0 0 15px rgba(255, 0, 127, 0.4);
+    --glow-shadow-purple: 0 0 15px rgba(189, 0, 255, 0.4);
+    
+    --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    
+    --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    --transition-fast: all 0.1s ease;
+}
+
+/* Reset & Global */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Ambient Background Glows */
+.bg-glow {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    z-index: 0;
+    opacity: 0.35;
+    pointer-events: none;
+    animation: floatGlow 12s infinite alternate ease-in-out;
+}
+
+.bg-glow-1 {
+    width: 400px;
+    height: 400px;
+    background: var(--purple-glow);
+    top: -100px;
+    left: -100px;
+}
+
+.bg-glow-2 {
+    width: 500px;
+    height: 500px;
+    background: var(--cyan-glow);
+    bottom: -150px;
+    right: -100px;
+    animation-delay: -4s;
+}
+
+.bg-glow-3 {
+    width: 300px;
+    height: 300px;
+    background: var(--pink-glow);
+    top: 40%;
+    left: 60%;
+    animation-delay: -8s;
+}
+
+@keyframes floatGlow {
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+    100% {
+        transform: translate(40px, 30px) scale(1.15);
+    }
+}
+
+/* App Container Layout */
+.app-container {
+    width: 100%;
+    max-width: 1200px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    z-index: 1;
+}
+
+/* Glassmorphism Panel base */
+.glass-panel {
+    background: var(--bg-panel);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-glass);
+    border-radius: 16px;
+    padding: 20px;
+    transition: var(--transition-smooth);
+}
+
+.glass-panel:hover {
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Header */
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-glass);
+    padding-bottom: 16px;
+}
+
+.logo-area {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.logo-badge {
+    font-size: 0.65rem;
+    font-family: var(--font-mono);
+    color: var(--cyan-glow);
+    letter-spacing: 0.2em;
+    font-weight: 700;
+}
+
+.logo-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    background: linear-gradient(135deg, #fff 30%, var(--cyan-glow) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(0, 240, 255, 0.25);
+}
+
+.header-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border-glass);
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    background-color: var(--pink-glow);
+    border-radius: 50%;
+    box-shadow: var(--glow-shadow-pink);
+    animation: pulseGlow 2s infinite;
+}
+
+.status-indicator.ready {
+    background-color: var(--cyan-glow);
+    box-shadow: var(--glow-shadow-cyan);
+}
+
+.status-text {
+    font-size: 0.8rem;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+}
+
+@keyframes pulseGlow {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+/* Main Workspace */
+.synth-workspace {
+    display: grid;
+    grid-template-columns: 1.2fr 1.8fr;
+    gap: 20px;
+}
+
+@media (max-width: 900px) {
+    .synth-workspace {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Panel Header styling */
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: 10px;
+}
+
+.panel-header h2 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    letter-spacing: 0.1em;
+    font-family: var(--font-mono);
+}
+
+/* Visualizer Canvas Area */
+.canvas-container {
+    position: relative;
+    width: 100%;
+    height: 280px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    overflow: hidden;
+}
+
+#visualizer-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.interaction-prompt {
+    position: absolute;
+    inset: 0;
+    background: rgba(10, 10, 15, 0.85);
+    backdrop-filter: blur(4px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    z-index: 10;
+    transition: var(--transition-smooth);
+}
+
+.interaction-prompt p {
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+}
+
+.play-icon-glow {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba(0, 240, 255, 0.1);
+    border: 1px solid var(--cyan-glow);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--cyan-glow);
+    box-shadow: var(--glow-shadow-cyan);
+    transition: var(--transition-smooth);
+}
+
+.interaction-prompt:hover .play-icon-glow {
+    transform: scale(1.1);
+    background: rgba(0, 240, 255, 0.2);
+    box-shadow: 0 0 25px var(--cyan-glow);
+}
+
+/* Control Elements Grid */
+.control-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+@media (max-width: 600px) {
+    .control-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.control-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+    padding: 14px;
+}
+
+.control-card h3 {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.control-group:last-child {
+    margin-bottom: 0;
+}
+
+.control-group label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+/* Selectors (OSC & Filter buttons) */
+.osc-selector, .filter-selector {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    background: rgba(0, 0, 0, 0.2);
+    padding: 4px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.filter-selector {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.osc-btn, .filter-btn, .control-btn, .preset-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    padding: 6px 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-family: var(--font-sans);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.osc-btn:hover, .filter-btn:hover, .preset-btn:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.osc-btn.active, .filter-btn.active, .preset-btn.active {
+    color: #000;
+    background: var(--cyan-glow);
+    font-weight: 700;
+    box-shadow: var(--glow-shadow-cyan);
+}
+
+/* Control Button (Visualizer Mode) */
+.control-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid var(--border-glass);
+    border-radius: 20px;
+    color: var(--text-secondary);
+}
+
+.control-btn:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.control-btn.active {
+    border-color: var(--pink-glow);
+    color: var(--pink-glow);
+    box-shadow: 0 0 10px rgba(255, 0, 127, 0.2);
+}
+
+/* Sliders */
+.slider-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.val-display {
+    font-family: var(--font-mono);
+    color: var(--cyan-glow);
+}
+
+.custom-slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
+    outline: none;
+}
+
+.custom-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--text-primary);
+    cursor: pointer;
+    border: 2px solid var(--bg-dark);
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+    transition: var(--transition-fast);
+}
+
+.custom-slider::-webkit-slider-thumb:hover {
+    background: var(--cyan-glow);
+    transform: scale(1.15);
+    box-shadow: var(--glow-shadow-cyan);
+}
+
+/* ADSR Layout (Vertical sliders) */
+.adsr-layout {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    height: 120px;
+    justify-items: center;
+    padding-top: 10px;
+}
+
+.slider-vertical-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+    width: 100%;
+}
+
+.vertical-slider {
+    -webkit-appearance: none;
+    writing-mode: bt-lr; /* IE */
+    transform: rotate(-90deg);
+    width: 70px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
+    outline: none;
+    margin-bottom: 25px;
+    margin-top: 25px;
+}
+
+.vertical-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--text-primary);
+    cursor: pointer;
+    border: 2px solid var(--bg-dark);
+}
+
+.vertical-slider::-webkit-slider-thumb:hover {
+    background: var(--pink-glow);
+    box-shadow: var(--glow-shadow-pink);
+}
+
+.slider-vertical-container label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+}
+
+.slider-val {
+    font-size: 0.65rem;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+}
+
+/* Master controls and presets */
+.master-panel {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.master-vol {
+    width: 100%;
+}
+
+.quick-presets {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.preset-btn {
+    border: 1px solid var(--border-glass);
+    padding: 4px 10px;
+    border-radius: 12px;
+}
+
+/* Piano Keyboard Panel */
+.keyboard-panel {
+    padding: 16px;
+}
+
+.piano-keyboard {
+    position: relative;
+    display: flex;
+    width: 100%;
+    height: 220px;
+    background: #000;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    user-select: none;
+}
+
+.piano-key {
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.1s ease, border-color 0.1s ease, box-shadow 0.1s ease;
+}
+
+.piano-key.white {
+    flex: 1;
+    background: linear-gradient(to bottom, #ffffff 0%, #ebebeb 100%);
+    border-right: 1px solid #c0c0c0;
+    height: 100%;
+    z-index: 1;
+}
+
+.piano-key.white:last-child {
+    border-right: none;
+}
+
+.piano-key.black {
+    width: 32px;
+    height: 60%;
+    background: linear-gradient(to bottom, #2b2b2b 0%, #111111 100%);
+    border: 1px solid #000;
+    border-radius: 0 0 4px 4px;
+    z-index: 2;
+    /* Slide overlapping white keys */
+    margin-left: -16px;
+    margin-right: -16px;
+}
+
+/* Piano Key Labels */
+.key-label {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.65rem;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: #8c8c9e;
+    pointer-events: none;
+    opacity: 0.4;
+    transition: var(--transition-fast);
+}
+
+.binding-label {
+    position: absolute;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.75rem;
+    font-weight: 800;
+    font-family: var(--font-mono);
+    color: #4a4a5c;
+    pointer-events: none;
+    transition: var(--transition-fast);
+}
+
+.piano-key.black .key-label {
+    color: #9494a8;
+    bottom: 8px;
+}
+
+.piano-key.black .binding-label {
+    color: #57576a;
+    bottom: 22px;
+}
+
+/* Interactive States */
+.piano-key.white:hover {
+    background: linear-gradient(to bottom, #ffffff 0%, #f5f5fa 100%);
+}
+
+.piano-key.black:hover {
+    background: linear-gradient(to bottom, #3b3b4c 0%, #1a1a24 100%);
+}
+
+/* Active Keypress states */
+.piano-key.white.active {
+    background: linear-gradient(to bottom, #e1f5fe 0%, var(--cyan-glow) 100%);
+    border-color: var(--cyan-glow);
+    box-shadow: inset 0 -10px 20px rgba(0, 240, 255, 0.3), 0 4px 10px rgba(0, 240, 255, 0.2);
+}
+
+.piano-key.black.active {
+    background: linear-gradient(to bottom, #4a154b 0%, var(--pink-glow) 100%);
+    border-color: var(--pink-glow);
+    box-shadow: inset 0 -5px 10px rgba(255, 0, 127, 0.5), 0 4px 10px rgba(255, 0, 127, 0.3);
+}
+
+.piano-key.active .binding-label, .piano-key.active .key-label {
+    color: #000;
+    opacity: 0.8;
+}
+
+.piano-key.black.active .binding-label, .piano-key.black.active .key-label {
+    color: #fff;
+    opacity: 0.9;
+}
+
+/* -------------------------------------------------------------
+ * Tonic Sol-fa Song Board & Left Column Stacking
+ * ------------------------------------------------------------- */
+.synth-left-col {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.solfa-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.solfa-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.solfa-controls label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+}
+
+.custom-select {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-glass);
+    border-radius: 8px;
+    color: var(--text-primary);
+    padding: 8px 12px;
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    outline: none;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+.custom-select:focus {
+    border-color: var(--cyan-glow);
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.15);
+}
+
+.custom-select option {
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+}
+
+.solfa-song-display {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 120px;
+    max-height: 160px;
+    overflow-y: auto;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.02);
+    padding: 14px;
+    align-content: flex-start;
+}
+
+/* Custom Scrollbar for Song Display */
+.solfa-song-display::-webkit-scrollbar {
+    width: 6px;
+}
+.solfa-song-display::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+}
+.solfa-song-display::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+}
+
+.solfa-note-bubble {
+    font-size: 0.75rem;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 5px 10px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    user-select: none;
+    transition: var(--transition-smooth);
+}
+
+.solfa-note-bubble .solfa-syllable {
+    font-weight: 700;
+}
+
+.solfa-note-bubble .solfa-binding {
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    font-size: 0.65rem;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1px 4px;
+    border-radius: 4px;
+}
+
+/* States */
+.solfa-note-bubble.completed {
+    opacity: 0.35;
+    background: rgba(255, 255, 255, 0.01);
+    border-color: transparent;
+    transform: scale(0.95);
+}
+
+.solfa-note-bubble.active {
+    color: var(--cyan-glow);
+    background: rgba(0, 240, 255, 0.08);
+    border-color: var(--cyan-glow);
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+    transform: scale(1.08);
+}
+
+.solfa-note-bubble.active .solfa-binding {
+    color: var(--cyan-glow);
+    background: rgba(0, 240, 255, 0.15);
+}
+
+.solfa-hint-bar {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    padding: 10px 14px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.hint-solfa {
+    font-weight: 700;
+    color: var(--cyan-glow);
+    text-shadow: 0 0 8px rgba(0, 240, 255, 0.3);
+}
+
+.hint-key {
+    padding: 2px 6px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-bottom-width: 3px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: var(--text-primary);
+    font-size: 0.75rem;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.hint-connector {
+    color: var(--text-muted);
+}
+
+/* Footer styling */
+.app-footer {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    margin-top: 10px;
+}
+

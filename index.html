@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIBESYNTH - Premium Web Synthesizer & Visualizer</title>
+    <meta name="description" content="A gorgeous, interactive glassmorphic web synthesizer and audio visualizer powered by the Web Audio API. Play, tweak settings, and vibe to the visuals.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Background glow elements for rich aesthetic atmosphere -->
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div class="bg-glow bg-glow-3"></div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo-area">
+                <span class="logo-badge">WEB AUDIO API</span>
+                <h1 class="logo-title">VIBESYNTH</h1>
+            </div>
+            <div class="header-status">
+                <span class="status-indicator"></span>
+                <span class="status-text" id="status-text">Click keyboard or press keys to start</span>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="synth-workspace">
+            
+            <div class="synth-left-col">
+                <!-- Audio Visualizer Dashboard (Left) -->
+                <section class="visualizer-panel glass-panel">
+                    <div class="panel-header">
+                        <h2>VISUALIZER</h2>
+                        <div class="visualizer-controls">
+                            <button id="btn-viz-mode" class="control-btn active" title="Switch Visualization Mode">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M2.5 11.5A.5.5 0 0 1 3 11h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 3 7h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 3 3h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
+                                </svg>
+                                <span id="viz-mode-label">Oscilloscope</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="visualizer-canvas"></canvas>
+                        <div id="interaction-prompt" class="interaction-prompt">
+                            <div class="play-icon-glow">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                                </svg>
+                            </div>
+                            <p>Click to Initialize Audio Context</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Tonic Sol-fa Trainer Panel -->
+                <section class="solfa-panel glass-panel">
+                    <div class="panel-header">
+                        <h2>TONIC SOL-FA SONG BOARD</h2>
+                        <button id="btn-solfa-reset" class="control-btn" title="Reset Song Progress">
+                            <span class="btn-text">Reset</span>
+                        </button>
+                    </div>
+                    <div class="solfa-controls">
+                        <label for="solfa-song-select">Choose a Song:</label>
+                        <select id="solfa-song-select" class="custom-select">
+                            <option value="twinkle">Twinkle Twinkle Little Star</option>
+                            <option value="mary">Mary Had a Little Lamb</option>
+                            <option value="do-re-mi">Do-Re-Mi (Sound of Music)</option>
+                            <option value="ode">Ode to Joy</option>
+                        </select>
+                    </div>
+                    <div class="solfa-song-display" id="solfa-song-display">
+                        <!-- Notes will be dynamically populated here -->
+                    </div>
+                    <div class="solfa-hint-bar" id="solfa-hint-bar">
+                        Next: <span id="next-solfa-hint" class="hint-solfa">-</span> <span class="hint-connector">-></span> Press <span id="next-key-hint" class="hint-key">-</span>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Control Controls Panel (Right) -->
+            <section class="synth-controls glass-panel">
+                <div class="panel-header">
+                    <h2>SOUND CONFIGURATION</h2>
+                </div>
+
+                <div class="control-grid">
+                    <!-- OSCILLATOR SECTION -->
+                    <div class="control-card">
+                        <h3>OSCILLATORS</h3>
+                        <div class="control-group">
+                            <label>Waveform</label>
+                            <div class="osc-selector">
+                                <button class="osc-btn active" data-type="sine" title="Sine Wave">Sine</button>
+                                <button class="osc-btn" data-type="triangle" title="Triangle Wave">Tri</button>
+                                <button class="osc-btn" data-type="sawtooth" title="Sawtooth Wave">Saw</button>
+                                <button class="osc-btn" data-type="square" title="Square Wave">Squ</button>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <div class="slider-header">
+                                <label for="slider-detune">Sub Detune</label>
+                                <span id="val-detune" class="val-display">0 cents</span>
+                            </div>
+                            <input type="range" id="slider-detune" min="-50" max="50" value="0" step="1" class="custom-slider">
+                        </div>
+                    </div>
+
+                    <!-- ADSR ENVELOPE -->
+                    <div class="control-card">
+                        <h3>ADSR ENVELOPE</h3>
+                        <div class="adsr-layout">
+                            <div class="slider-vertical-container">
+                                <input type="range" id="slider-attack" min="0" max="2" value="0.1" step="0.01" class="vertical-slider">
+                                <label for="slider-attack">A</label>
+                                <span id="val-attack" class="slider-val">0.1s</span>
+                            </div>
+                            <div class="slider-vertical-container">
+                                <input type="range" id="slider-decay" min="0" max="2" value="0.2" step="0.01" class="vertical-slider">
+                                <label for="slider-decay">D</label>
+                                <span id="val-decay" class="slider-val">0.2s</span>
+                            </div>
+                            <div class="slider-vertical-container">
+                                <input type="range" id="slider-sustain" min="0" max="1" value="0.7" step="0.01" class="vertical-slider">
+                                <label for="slider-sustain">S</label>
+                                <span id="val-sustain" class="slider-val">70%</span>
+                            </div>
+                            <div class="slider-vertical-container">
+                                <input type="range" id="slider-release" min="0.05" max="3" value="0.4" step="0.01" class="vertical-slider">
+                                <label for="slider-release">R</label>
+                                <span id="val-release" class="slider-val">0.4s</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FILTER NODE -->
+                    <div class="control-card">
+                        <h3>FILTER</h3>
+                        <div class="control-group">
+                            <label>Filter Type</label>
+                            <div class="filter-selector">
+                                <button class="filter-btn active" data-type="lowpass">Lowpass</button>
+                                <button class="filter-btn" data-type="highpass">Highpass</button>
+                                <button class="filter-btn" data-type="bandpass">Bandpass</button>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <div class="slider-header">
+                                <label for="slider-cutoff">Cutoff Freq</label>
+                                <span id="val-cutoff" class="val-display">20000 Hz</span>
+                            </div>
+                            <input type="range" id="slider-cutoff" min="20" max="20000" value="20000" step="10" class="custom-slider">
+                        </div>
+                        <div class="control-group">
+                            <div class="slider-header">
+                                <label for="slider-q">Resonance (Q)</label>
+                                <span id="val-q" class="val-display">1.0</span>
+                            </div>
+                            <input type="range" id="slider-q" min="0.0001" max="25" value="1" step="0.1" class="custom-slider">
+                        </div>
+                    </div>
+
+                    <!-- DELAY & REVERB -->
+                    <div class="control-card">
+                        <h3>EFFECTS (FX)</h3>
+                        <div class="control-group">
+                            <div class="slider-header">
+                                <label for="slider-delay-time">Delay Time</label>
+                                <span id="val-delay-time" class="val-display">0.3s</span>
+                            </div>
+                            <input type="range" id="slider-delay-time" min="0.0" max="1.0" value="0.3" step="0.05" class="custom-slider">
+                        </div>
+                        <div class="control-group">
+                            <div class="slider-header">
+                                <label for="slider-delay-feedback">Delay Feedback</label>
+                                <span id="val-delay-feedback" class="val-display">30%</span>
+                            </div>
+                            <input type="range" id="slider-delay-feedback" min="0" max="0.9" value="0.3" step="0.05" class="custom-slider">
+                        </div>
+                        <div class="control-group">
+                            <div class="slider-header">
+                                <label for="slider-reverb">Space (Reverb)</label>
+                                <span id="val-reverb" class="val-display">Off</span>
+                            </div>
+                            <input type="range" id="slider-reverb" min="0" max="0.8" value="0" step="0.05" class="custom-slider">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Master Controls -->
+                <div class="master-panel">
+                    <div class="control-group master-vol">
+                        <div class="slider-header">
+                            <label for="slider-master-volume">MASTER VOLUME</label>
+                            <span id="val-master-volume" class="val-display">70%</span>
+                        </div>
+                        <input type="range" id="slider-master-volume" min="0" max="1" value="0.7" step="0.01" class="custom-slider">
+                    </div>
+                    <div class="quick-presets">
+                        <span>Presets:</span>
+                        <button class="preset-btn" id="preset-chill">Chill Lofi</button>
+                        <button class="preset-btn" id="preset-synthwave">Synthwave Lead</button>
+                        <button class="preset-btn" id="preset-space">Space Organ</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Piano Keyboard Container -->
+        <section class="keyboard-panel glass-panel">
+            <div id="piano-keyboard" class="piano-keyboard">
+                <div class="piano-key white" data-note="C3" data-key="A"><span class="key-label">C3</span><span class="binding-label">A</span></div>
+                <div class="piano-key black" data-note="C#3" data-key="W"><span class="key-label">C#3</span><span class="binding-label">W</span></div>
+                <div class="piano-key white" data-note="D3" data-key="S"><span class="key-label">D3</span><span class="binding-label">S</span></div>
+                <div class="piano-key black" data-note="D#3" data-key="E"><span class="key-label">D#3</span><span class="binding-label">E</span></div>
+                <div class="piano-key white" data-note="E3" data-key="D"><span class="key-label">E3</span><span class="binding-label">D</span></div>
+                <div class="piano-key white" data-note="F3" data-key="F"><span class="key-label">F3</span><span class="binding-label">F</span></div>
+                <div class="piano-key black" data-note="F#3" data-key="T"><span class="key-label">F#3</span><span class="binding-label">T</span></div>
+                <div class="piano-key white" data-note="G3" data-key="G"><span class="key-label">G3</span><span class="binding-label">G</span></div>
+                <div class="piano-key black" data-note="G#3" data-key="Y"><span class="key-label">G#3</span><span class="binding-label">Y</span></div>
+                <div class="piano-key white" data-note="A3" data-key="H"><span class="key-label">A3</span><span class="binding-label">H</span></div>
+                <div class="piano-key black" data-note="A#3" data-key="U"><span class="key-label">A#3</span><span class="binding-label">U</span></div>
+                <div class="piano-key white" data-note="B3" data-key="J"><span class="key-label">B3</span><span class="binding-label">J</span></div>
+                
+                <div class="piano-key white" data-note="C4" data-key="K"><span class="key-label">C4</span><span class="binding-label">K</span></div>
+                <div class="piano-key black" data-note="C#4" data-key="O"><span class="key-label">C#4</span><span class="binding-label">O</span></div>
+                <div class="piano-key white" data-note="D4" data-key="L"><span class="key-label">D4</span><span class="binding-label">L</span></div>
+                <div class="piano-key black" data-note="D#4" data-key="P"><span class="key-label">D#4</span><span class="binding-label">P</span></div>
+                <div class="piano-key white" data-note="E4" data-key=";"><span class="key-label">E4</span><span class="binding-label">;</span></div>
+                <div class="piano-key white" data-note="F4" data-key="'"><span class="key-label">F4</span><span class="binding-label">'</span></div>
+            </div>
+        </section>
+        
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>Made with HTML5, CSS Grid & Web Audio API. Play notes with your computer keyboard or click/touch keys.</p>
+        </footer>
+    </div>
+
+    <!-- Script file -->
+    <script src="app.js"></script>
+</body>
+</html>

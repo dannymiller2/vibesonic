@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIBESONIC - 3D Headphone Spatializer & Music Player</title>
+    <meta name="description" content="Experience theater-like spatial surround sound over standard headphones. Drag-and-drop your audio files and interact with virtual speakers.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="player.css">
+</head>
+<body>
+    <!-- Background atmospheric glows -->
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div class="bg-glow bg-glow-3"></div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo-area">
+                <span class="logo-badge">BINAURAL HRTF SOUNDSTAGE</span>
+                <h1 class="logo-title">VIBESONIC</h1>
+            </div>
+            <div class="header-nav">
+                <a href="index.html" class="nav-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm11.5 5.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>
+                    </svg>
+                    Synthesizer App
+                </a>
+            </div>
+        </header>
+
+        <!-- Main Dashboard -->
+        <main class="player-workspace">
+            
+            <!-- Left Side: Music Source & Player Controls -->
+            <section class="left-section">
+                <!-- Dropzone Card -->
+                <div class="dropzone-card glass-panel" id="dropzone">
+                    <input type="file" id="file-input" accept="audio/*" class="file-hidden" multiple>
+                    <div class="dropzone-content">
+                        <div class="upload-icon-glow">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                        </div>
+                        <h3>Upload Your Audio</h3>
+                        <p>Drag & drop MP3, WAV, or FLAC here, or click to browse</p>
+                    </div>
+                </div>
+
+                <!-- Device Audio Capture Card -->
+                <div class="capture-card glass-panel" id="capture-device-card">
+                    <button id="btn-capture-audio" class="capture-btn">
+                        <span class="pulse-indicator"></span>
+                        <span class="btn-text">Capture Other Device Audio (System Loopback)</span>
+                    </button>
+                    <p class="capture-subtext">Route Spotify, YouTube, or system sound into the 3D spatializer. (Requires sharing screen/tab audio when prompted)</p>
+                </div>
+
+                <!-- Player Console Card -->
+                <div class="player-console glass-panel">
+                    <div class="track-info">
+                        <span class="track-badge" id="track-status">NO TRACK LOADED</span>
+                        <h2 class="track-title" id="track-title">Select or drag an audio file above</h2>
+                        <span class="track-artist" id="track-details">Format: -- | Size: --</span>
+                    </div>
+
+                    <!-- Hidden native audio element for streaming -->
+                    <audio id="audio-element" style="display:none;" crossorigin="anonymous"></audio>
+
+                    <!-- Waveform Progress Timeline -->
+                    <div class="progress-area">
+                        <span class="time-stamp" id="current-time">0:00</span>
+                        <input type="range" id="timeline-slider" min="0" max="100" value="0" step="0.1" class="custom-slider" disabled>
+                        <span class="time-stamp" id="total-duration">0:00</span>
+                    </div>
+
+                    <!-- Audio Controls Button Group -->
+                    <div class="media-controls">
+                        <button id="btn-play-pause" class="play-btn" disabled>
+                            <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                            <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="display:none;">
+                                <rect x="6" y="4" width="4" height="16"></rect>
+                                <rect x="14" y="4" width="4" height="16"></rect>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Playlist Queue Card -->
+                <div class="playlist-card glass-panel">
+                    <div class="panel-header">
+                        <h2>PLAYLIST QUEUE</h2>
+                        <button id="btn-clear-playlist" class="control-btn" title="Clear all tracks">Clear All</button>
+                    </div>
+                    <div class="playlist-queue" id="playlist-queue-container">
+                        <div class="playlist-empty-state">Queue is empty. Drag files above to start.</div>
+                    </div>
+                </div>
+                
+                <!-- Output Visualizer Waveform -->
+                <div class="visualizer-card glass-panel">
+                    <div class="panel-header">
+                        <h2>Enhanced Frequency Output</h2>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="output-canvas"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Side: Spatialization / Surround Engine -->
+            <section class="right-section">
+                <div class="spatial-dashboard glass-panel">
+                    <div class="panel-header">
+                        <h2>3D SPATIALIZER DSP ENGINE</h2>
+                        <div class="bypass-toggle">
+                            <span class="toggle-label">Bypassed</span>
+                            <button id="btn-spatial-toggle" class="spatial-toggle-btn active" title="Toggle Spatial Enhancement">
+                                <span class="toggle-dot"></span>
+                            </button>
+                            <span class="toggle-label active">Spatial On</span>
+                        </div>
+                    </div>
+
+                    <!-- Room Preset Selection -->
+                    <div class="control-group">
+                        <label>Virtual Environment</label>
+                        <div class="preset-selector">
+                            <button class="preset-btn active" data-preset="studio">Studio Monitor</button>
+                            <button class="preset-btn" data-preset="cinema">Atmos Cinema</button>
+                            <button class="preset-btn" data-preset="cathedral">Concert Cathedral</button>
+                            <button class="preset-btn" data-preset="outerspace">Outer Space</button>
+                        </div>
+                    </div>
+
+                    <!-- Speaker Radar Grid -->
+                    <div class="radar-container">
+                        <div class="radar-header">
+                            <h3>Virtual Speaker Soundstage</h3>
+                            <p>Drag the Left (L) and Right (R) speakers to change speaker width & rotation</p>
+                        </div>
+                        <div class="radar-canvas-wrapper">
+                            <canvas id="radar-canvas"></canvas>
+                        </div>
+                        <div class="radar-controls">
+                            <button id="btn-auto-orbit" class="control-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                                    <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                                </svg>
+                                Auto-Rotate Stage
+                            </button>
+                            <button id="btn-reset-speakers" class="control-btn">Reset Layout</button>
+                        </div>
+                    </div>
+
+                    <!-- DSP Sliders Grid -->
+                    <div class="dsp-sliders">
+                        
+                        <!-- Room Reverberation Wetness -->
+                        <div class="control-card">
+                            <div class="slider-header">
+                                <label for="slider-room-wet">Virtual Room Reflection</label>
+                                <span id="val-room-wet" class="val-display">25%</span>
+                            </div>
+                            <input type="range" id="slider-room-wet" min="0" max="1" value="0.25" step="0.05" class="custom-slider">
+                        </div>
+
+                        <!-- Binaural Crossfeed Level -->
+                        <div class="control-card">
+                            <div class="slider-header">
+                                <label for="slider-crossfeed">Headphone Crossfeed (Soundstage Width)</label>
+                                <span id="val-crossfeed" class="val-display">40%</span>
+                            </div>
+                            <input type="range" id="slider-crossfeed" min="0" max="1" value="0.4" step="0.05" class="custom-slider">
+                        </div>
+
+                        <!-- Subwoofer Bass Boost (Crossover channel) -->
+                        <div class="control-card">
+                            <div class="slider-header">
+                                <label for="slider-bass-boost">Sub-bass LFE Rumble Boost</label>
+                                <span id="val-bass-boost" class="val-display">30%</span>
+                            </div>
+                            <input type="range" id="slider-bass-boost" min="0" max="1" value="0.3" step="0.05" class="custom-slider">
+                        </div>
+
+                        <!-- Dialogue/Vocal Clarifier -->
+                        <div class="control-card">
+                            <div class="slider-header">
+                                <label for="slider-vocal-clarity">Vocal Clarifier (Presence)</label>
+                                <span id="val-vocal-clarity" class="val-display">20%</span>
+                            </div>
+                            <input type="range" id="slider-vocal-clarity" min="0" max="1" value="0.2" step="0.05" class="custom-slider">
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>VIBESONIC Headphone DSP Engine - Dolby Atmos & Binaural HRTF Simulation via Web Audio API.</p>
+        </footer>
+    </div>
+
+    <!-- Script file -->
+    <script src="player.js"></script>
+</body>
+</html>
