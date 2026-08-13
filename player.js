@@ -669,10 +669,69 @@ function startOutputVisualizer() {
 document.addEventListener('DOMContentLoaded', () => {
     initRadarCanvas();
 
+    // Initialize global DOM references
+    audioElement = document.getElementById('audio-element');
+    timelineSlider = document.getElementById('timeline-slider');
+    btnPlayPause = document.getElementById('btn-play-pause');
+    playIcon = document.getElementById('play-icon');
+    pauseIcon = document.getElementById('pause-icon');
+
+    // Toggle play/pause UI icon state
+    function setPlayingState(isPlaying) {
+        if (!playIcon || !pauseIcon) return;
+        if (isPlaying) {
+            playIcon.style.display = 'none';
+            pauseIcon.style.display = 'block';
+        } else {
+            playIcon.style.display = 'block';
+            pauseIcon.style.display = 'none';
+        }
+    }
+
+    // Play/Pause button action handler
+    btnPlayPause.addEventListener('click', () => {
+        if (audioElement.src) {
+            if (audioElement.paused) {
+                audioElement.play();
+                setPlayingState(true);
+            } else {
+                audioElement.pause();
+                setPlayingState(false);
+            }
+        }
+    });
+
+    // Time progress sync handler
+    audioElement.addEventListener('timeupdate', () => {
+        if (!audioElement.duration || isCapturingSystemAudio) return;
+        const progress = (audioElement.currentTime / audioElement.duration) * 100;
+        timelineSlider.value = progress;
+        document.getElementById('current-time').textContent = formatTime(audioElement.currentTime);
+    });
+
+    // Track total duration handler
+    audioElement.addEventListener('loadedmetadata', () => {
+        document.getElementById('total-duration').textContent = formatTime(audioElement.duration);
+    });
+
+    // Seek track timeline slider event
+    timelineSlider.addEventListener('input', (e) => {
+        if (!audioElement.duration || isCapturingSystemAudio) return;
+        const seekTime = (parseFloat(e.target.value) / 100) * audioElement.duration;
+        audioElement.currentTime = seekTime;
+    });
+
+    // Format seconds to MM:SS
+    function formatTime(secs) {
+        if (isNaN(secs)) return "0:00";
+        const minutes = Math.floor(secs / 60);
+        const seconds = Math.floor(secs % 60);
+        return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    }
+
     // 1. File Upload Dropzone listeners (Multiple Files)
     const dropzone = document.getElementById('dropzone');
     const fileInput = document.getElementById('file-input');
-    const audioElement = document.getElementById('audio-element');
 
     dropzone.addEventListener('click', () => fileInput.click());
 
@@ -899,6 +958,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     async function startSystemAudioCapture() {
+        // Check if page is loaded directly via file://
+        if (window.location.protocol === 'file:') {
+            alert("System audio capture is not supported when opening HTML files directly via file://.\n\nPlease host this site on a local web server (e.g., XAMPP Apache) and access it via http://localhost/ or http://127.0.0.1/.");
+            return;
+        }
+
+        // Check for Secure Context requirement (HTTPS or localhost)
+        if (!window.isSecureContext) {
+            alert("System audio capture requires a Secure Context.\n\nPlease access the page via http://localhost/ or http://127.0.0.1/, or set up HTTPS if you are accessing it via a custom domain or over the network.");
+            return;
+        }
+
+        // Check if getDisplayMedia is supported/exposed by the browser
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+            alert("Your browser does not support display media capture, or it has disabled it. If you are in private/incognito mode, some permission features might be restricted.");
+            return;
+        }
+
         try {
             // Request display media stream with audio capture
             captureStream = await navigator.mediaDevices.getDisplayMedia({
@@ -906,14 +983,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 audio: {
                     echoCancellation: false,
                     noiseSuppression: false,
-                    autoGainControl: false
+                    autoGainControl: false,
+                    suppressLocalAudioPlayback: true
                 }
             });
 
             const audioTracks = captureStream.getAudioTracks();
             if (audioTracks.length === 0) {
                 // User didn't share system audio
-                alert("No audio track detected. Please make sure to check 'Share audio' or select a tab/window with audio output playing.");
+                alert("No audio track detected. Please make sure to select a tab or screen and check the 'Share audio' or 'Share tab audio' checkbox at the bottom of the browser prompt.");
                 stopSystemAudioCapture();
                 return;
             }
@@ -952,7 +1030,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (err) {
             console.error("System audio capture failed:", err);
-            alert("Could not start device audio capture. Make sure browser permissions are granted.");
+            alert("Could not start device audio capture.\n\nError details: " + err.name + " - " + err.message + "\n\nCommon reasons:\n1. The browser sharing dialog was cancelled.\n2. The page is not being served over a secure origin (http://localhost or HTTPS).\n3. You did not check 'Share audio' (or 'Share tab audio') in the sharing dialog.");
             stopSystemAudioCapture();
         }
     }
